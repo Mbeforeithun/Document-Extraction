@@ -1,6 +1,12 @@
 from pypdf import PdfReader
 from langchain_core.tools import tool
 
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from schema import Invoice
+
+load_dotenv()
+
 
 @tool
 def read_pdf(file_path: str) -> str:
@@ -12,3 +18,23 @@ def read_pdf(file_path: str) -> str:
     if not text.strip():
         return "WARNING: No text found. This PDF may be scanned."
     return text
+
+
+_extractor = ChatGroq(
+    model="openai/gpt-oss-120b", temperature=0
+).with_structured_output(Invoice)
+
+
+@tool
+def extract_invoice(file_path: str) -> str:
+    """Extract structured invoice fields (vendor, customer, line items,
+    taxes, totals) from a text-based PDF invoice and return them as JSON.
+    Use this when you need the invoice data in structured form."""
+    text = PdfReader(file_path)
+    text = "\n".join(page.extract_text() or "" for page in text.pages)
+    if not text.strip():
+        return "WARNING: No text found. This PDF may be scanned."
+    invoice = _extractor.invoke(
+        f"Extract the invoice fields from this document:\n\n{text}"
+    )
+    return invoice.model_dump_json(indent=2)
