@@ -4,6 +4,8 @@ from langchain_core.tools import tool
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from schema import Invoice
+import json
+from validation import validate_invoice_data
 
 load_dotenv()
 
@@ -38,3 +40,18 @@ def extract_invoice(file_path: str) -> str:
         f"Extract the invoice fields from this document:\n\n{text}"
     )
     return invoice.model_dump_json(indent=2)
+
+@tool
+def validate_invoice(invoice_json: str) -> str:
+    """Check extracted invoice data for math errors. Pass the JSON string
+    returned by extract_invoice. Returns 'VALID' if all checks pass, or a
+    list of specific problems found (for example, line items that do not
+    add up to the subtotal)."""
+    try:
+        invoice = Invoice(**json.loads(invoice_json))
+    except Exception as e:
+        return f"INVALID STRUCTURE: {e}"
+    errors = validate_invoice_data(invoice)
+    if not errors:
+        return "VALID"
+    return "VALIDATION ERRORS:\n" + "\n".join(f"- {e}" for e in errors)

@@ -13,8 +13,10 @@ def validate_invoice_data(inv: Invoice) -> list[str]:
 
     # Treat missing optional amounts as zero
     discount = inv.discount or 0.0
+    freight = inv.freight or 0.0
     cgst = inv.cgst or 0.0
     sgst = inv.sgst or 0.0
+    igst = inv.igst or 0.0
     paid = inv.amount_paid or 0.0
 
     # Check 1: each line item's qty x unit price = amount
@@ -35,7 +37,7 @@ def validate_invoice_data(inv: Invoice) -> list[str]:
 
     # Check 3: subtotal - discount + taxes = total
     base = inv.subtotal if inv.subtotal is not None else items_sum
-    expected_total = base - discount + cgst + sgst
+    expected_total = base - discount + freight + cgst + sgst + igst
     if not _close(expected_total, inv.total_amount):
         errors.append(
             f"subtotal - discount + taxes = {expected_total}, "

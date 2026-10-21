@@ -25,8 +25,12 @@ class Invoice(BaseModel):
     discount: Optional[float] = Field(
         default=None, description="Discount amount as a positive number"
     )
+    freight: Optional[float] = Field(
+        default=None, description="Freight, shipping or handling charge as a separate summary line"
+    )
     cgst: Optional[float] = None
     sgst: Optional[float] = None
+    igst: Optional[float] = None
     total_amount: float
     amount_paid: Optional[float] = None
     amount_due: Optional[float] = None
