@@ -1,15 +1,20 @@
+import glob
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.agents import create_agent
-from tools import read_pdf, extract_invoice, validate_invoice, flag_for_review
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.errors import GraphRecursionError
+from langgraph.types import Command
+from tools import read_pdf, extract_invoice, validate_invoice, flag_for_review, log_review
 
 load_dotenv()
 
-llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0, max_retries=6)
 
 agent = create_agent(
     llm,
     tools=[read_pdf, extract_invoice, validate_invoice, flag_for_review],
+    checkpointer=InMemorySaver(),
     system_prompt=(
         "You are an invoice processing assistant.\n"
         "1. Call extract_invoice, then validate_invoice on its JSON output.\n"
@@ -21,33 +26,38 @@ agent = create_agent(
         "You may retry at most 2 times in total.\n"
         "5. If the document itself is wrong, or validation still fails after "
         "retrying, call flag_for_review with a clear reason. "
-        "Never report an amount due as reliable when validation has failed."
+        "Never report an amount due as reliable when validation has failed.\n"
+        "6. flag_for_review returns the human's decision. Start your final "
+        "answer by stating that decision. If it is 'reject', say the invoice "
+        "was rejected and give no amount due. If it is 'approve', say the "
+        "reviewer approved it despite the validation failure. Otherwise, "
+        "treat the text as the reviewer's note and repeat it back."
     ),
 )
 
-# ---- everything below this line is the new part ----
-import glob
-from langgraph.errors import GraphRecursionError
-
 
 def process_invoice(file_path: str) -> str:
+    config = {"configurable": {"thread_id": file_path}, "recursion_limit": 25}
     try:
         result = agent.invoke(
-            {"messages": [("user", f"Process {file_path}")]},
-            config={"recursion_limit": 25},
+            {"messages": [("user", f"Process {file_path}")]}, config
         )
+        while "__interrupt__" in result:
+            info = result["__interrupt__"][0].value
+            print("\n--- HUMAN REVIEW NEEDED ---")
+            print("File:  ", info["file"])
+            print("Reason:", info["reason"])
+            decision = input("Your decision (approve / reject / or type a note): ")
+            result = agent.invoke(Command(resume=decision), config)
         return result["messages"][-1].content
     except GraphRecursionError:
-        flag_for_review.invoke(
-            {
-                "file_path": file_path,
-                "reason": "Agent hit the step limit before finishing. Needs manual review.",
-            }
+        log_review(
+            file_path, "Agent hit the step limit before finishing. Needs manual review."
         )
         return "STOPPED: step limit reached. Flagged for review."
 
 
 if __name__ == "__main__":
-    for path in sorted(glob.glob("samples/*.pdf")):
+    for path in sorted(glob.glob("samples/*wrong_total.pdf")):
         print(f"\n=== {path} ===")
         print(process_invoice(path))

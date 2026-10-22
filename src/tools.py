@@ -6,6 +6,7 @@ from langchain_groq import ChatGroq
 from schema import Invoice
 import json
 from validation import validate_invoice_data
+from langgraph.types import interrupt
 
 load_dotenv()
 
@@ -23,7 +24,7 @@ def read_pdf(file_path: str) -> str:
 
 
 _extractor = ChatGroq(
-    model="openai/gpt-oss-120b", temperature=0
+    model="openai/gpt-oss-120b", temperature=0, max_retries=6
 ).with_structured_output(Invoice)
 
 
@@ -56,17 +57,24 @@ def validate_invoice(invoice_json: str) -> str:
         return "VALID"
     return "VALIDATION ERRORS:\n" + "\n".join(f"- {e}" for e in errors)
 
-@tool
-def flag_for_review(file_path: str, reason: str) -> str:
-    """Send a document to a human reviewer when it cannot be processed
-    reliably. Use this when validation still fails after re-checking the
-    raw text, or when the document itself appears to contain an error.
-    Provide the file path and a clear reason."""
+def log_review(file_path: str, reason: str, decision: str | None = None) -> None:
+    """Append a review record to the queue file."""
     entry = {
         "file": file_path,
         "reason": reason,
+        "decision": decision,
         "time": datetime.now().isoformat(),
     }
     with open("review_queue.jsonl", "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
-    return "FLAGGED: document added to the human review queue."
+
+
+@tool
+def flag_for_review(file_path: str, reason: str) -> str:
+    """Send a document to a human reviewer and wait for their decision.
+    Use this when validation still fails after re-checking the raw text,
+    or when the document itself appears to contain an error.
+    Provide the file path and a clear reason."""
+    decision = interrupt({"file": file_path, "reason": reason})
+    log_review(file_path, reason, decision)
+    return f"HUMAN DECISION: {decision}"
