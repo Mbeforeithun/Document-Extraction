@@ -1,3 +1,4 @@
 {"file": "samples/invoice_004_wrong_total.pdf", "reason": "Invoice total amount (30,000) does not match calculated total (22,000 + 1,980 + 1,980 = 25,960). PDF text notes the total is intentionally wrong.", "time": "2026-10-22T11:05:17.591103"}
 {"file": "samples/invoice_004_wrong_total.pdf", "reason": "Agent hit the step limit before finishing. Needs manual review.", "time": "2026-10-22T11:18:29.873955"}
 {"file": "samples/invoice_004_wrong_total.pdf", "reason": "Invoice total amount (Rs 30,000) does not match calculated total (Rs 25,960) based on subtotal and taxes. Document explicitly notes the total is intentionally wrong.", "time": "2026-10-22T11:19:53.651477"}
+{"file": "samples\\invoice_004_wrong_total.pdf", "reason": "Total amount (Rs 30,000) does not match calculated subtotal plus taxes (Rs 25,960). Document indicates the total is intentionally wrong.", "time": "2026-10-22T11:30:52.019606"}
