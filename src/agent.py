@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.agents import create_agent
+from langgraph.errors import GraphRecursionError
 from tools import read_pdf, extract_invoice, validate_invoice, flag_for_review
 
 load_dotenv()
@@ -25,9 +26,23 @@ agent = create_agent(
     ),
 )
 
-result = agent.invoke(
-    {"messages": [("user", "Process samples/invoice_004_wrong_total.pdf")]}
-)
+file_path = "samples/invoice_004_wrong_total.pdf"
 
-for msg in result["messages"]:
-    msg.pretty_print()
+try:
+    result = agent.invoke(
+        {"messages": [("user", f"Process {file_path}")]},
+        config={"recursion_limit": 25},
+    )
+    for msg in result["messages"]:
+        msg.pretty_print()
+except GraphRecursionError:
+    print("STOPPED: step limit reached before the agent finished.")
+    print(
+        flag_for_review.invoke(
+            {
+                "file_path": file_path,
+                "reason": "Agent hit the step limit before finishing. Needs manual review.",
+            }
+        )
+    )
+
