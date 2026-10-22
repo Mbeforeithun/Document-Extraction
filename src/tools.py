@@ -1,6 +1,6 @@
 from pypdf import PdfReader
 from langchain_core.tools import tool
-
+from datetime import datetime
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from schema import Invoice
@@ -55,3 +55,18 @@ def validate_invoice(invoice_json: str) -> str:
     if not errors:
         return "VALID"
     return "VALIDATION ERRORS:\n" + "\n".join(f"- {e}" for e in errors)
+
+@tool
+def flag_for_review(file_path: str, reason: str) -> str:
+    """Send a document to a human reviewer when it cannot be processed
+    reliably. Use this when validation still fails after re-checking the
+    raw text, or when the document itself appears to contain an error.
+    Provide the file path and a clear reason."""
+    entry = {
+        "file": file_path,
+        "reason": reason,
+        "time": datetime.now().isoformat(),
+    }
+    with open("review_queue.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    return "FLAGGED: document added to the human review queue."

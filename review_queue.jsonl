@@ -1,0 +1,1 @@
+{"file": "samples/invoice_004_wrong_total.pdf", "reason": "Invoice total amount (30,000) does not match calculated total (22,000 + 1,980 + 1,980 = 25,960). PDF text notes the total is intentionally wrong.", "time": "2026-10-22T11:05:17.591103"}
