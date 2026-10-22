@@ -1,0 +1,30 @@
+{
+  "samples/invoice_001_standard_gst.pdf": {
+    "invoice_number": "INV-2026-001",
+    "vendor_name": "TechNova Solutions Pvt. Ltd.",
+    "total_amount": 138060.0,
+    "amount_due": 138060.0,
+    "should_pass_validation": true
+  },
+  "samples/invoice_002_services_discount.pdf": {
+    "invoice_number": "ACS-2026-104",
+    "vendor_name": "Apex Consulting Services",
+    "total_amount": 43719.0,
+    "amount_due": 33719.0,
+    "should_pass_validation": true
+  },
+  "samples/invoice_003_multipage_equipment.pdf": {
+    "invoice_number": "MIC-2026-487",
+    "vendor_name": "Matrix Industrial Components",
+    "total_amount": 56286.0,
+    "amount_due": 46286.0,
+    "should_pass_validation": true
+  },
+  "samples/invoice_004_wrong_total.pdf": {
+    "invoice_number": "BAD-2026-001",
+    "vendor_name": "Sample Traders Pvt. Ltd.",
+    "total_amount": 30000.0,
+    "amount_due": 30000.0,
+    "should_pass_validation": false
+  }
+}
