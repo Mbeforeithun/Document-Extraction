@@ -26,5 +26,26 @@
     "total_amount": 30000.0,
     "amount_due": 30000.0,
     "should_pass_validation": false
+  },
+  "samples/invoice_005_wrong_line_item.pdf": {
+    "invoice_number": "BAD-2026-002",
+    "vendor_name": "Lakeview Furnishings Pvt. Ltd.",
+    "total_amount": 5900.0,
+    "amount_due": 5900.0,
+    "should_pass_validation": false
+  },
+  "samples/invoice_006_wrong_amount_due.pdf": {
+    "invoice_number": "BAD-2026-003",
+    "vendor_name": "Orbit Networks Pvt. Ltd.",
+    "total_amount": 12980.0,
+    "amount_due": 9980.0,
+    "should_pass_validation": false
+  },
+  "samples/invoice_007_igst_freight_good.pdf": {
+    "invoice_number": "PMP-2026-310",
+    "vendor_name": "Delta Pumps and Valves Ltd.",
+    "total_amount": 12862.0,
+    "amount_due": 12862.0,
+    "should_pass_validation": true
   }
 }

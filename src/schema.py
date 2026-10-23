@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class LineItem(BaseModel):
@@ -34,3 +34,9 @@ class Invoice(BaseModel):
     total_amount: float
     amount_paid: Optional[float] = None
     amount_due: Optional[float] = None
+
+    @field_validator("discount")
+    @classmethod
+    def discount_is_positive(cls, v):
+        # models sometimes copy "-500" from the document; the rule is a positive amount
+        return abs(v) if v is not None else v
