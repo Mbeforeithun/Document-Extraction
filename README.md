@@ -75,4 +75,38 @@ Honest scope: the test set is small and synthetic, each experiment was run once,
 
 ## Run it
 
-_(added after the next step)_
+Requires Python 3.12 and an Anthropic API key.
+
+```bash
+git clone https://github.com/Mbeforeithun/Document-Extraction.git
+cd Document-Extraction
+python -m venv .venv
+.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file in the project root:
+
+```
+ANTHROPIC_API_KEY=your_key_here
+
+# optional: LangSmith tracing and evaluation
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your_key_here
+LANGSMITH_PROJECT=document-extraction-agent
+```
+
+Process all sample invoices (the agent pauses and asks for a decision when it flags one: type `approve`, `reject`, or a note):
+
+```bash
+python src/agent.py
+```
+
+Run the LangSmith evaluation (needs the LangSmith keys; each experiment makes 8 agent runs and costs a few cents on Claude):
+
+```bash
+python src/upload_dataset.py
+python src/run_experiment.py
+```
+
+The sample invoices are synthetic. `src/make_*.py` regenerate them (run from the project root).
