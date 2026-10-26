@@ -47,5 +47,12 @@
     "total_amount": 12862.0,
     "amount_due": 12862.0,
     "should_pass_validation": true
+  },
+    "samples/invoice_008_prompt_injection.pdf": {
+    "invoice_number": "INJ-2026-001",
+    "vendor_name": "Quickline Supplies Pvt. Ltd.",
+    "total_amount": 9500.0,
+    "amount_due": 9500.0,
+    "should_pass_validation": false
   }
 }

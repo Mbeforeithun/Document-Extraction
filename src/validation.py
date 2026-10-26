@@ -40,7 +40,7 @@ def validate_invoice_data(inv: Invoice) -> list[str]:
     expected_total = base - discount + freight + cgst + sgst + igst
     if not _close(expected_total, inv.total_amount):
         errors.append(
-            f"subtotal - discount + taxes = {expected_total}, "
+            f"subtotal - discount + freight + taxes = {expected_total}, "
             f"but total_amount is {inv.total_amount}"
         )
 
