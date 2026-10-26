@@ -1,0 +1,9 @@
+langchain==1.4.6
+langgraph==1.2.16
+langchain-anthropic==1.7.6
+langsmith==0.14.12
+openevals==0.2.2
+pydantic==2.14.1
+pypdf==6.21.1
+python-dotenv==1.2.4
+reportlab==5.0.1

@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from langsmith import Client
 
-from ls_evalvators import field_accuracy, escalation_correct,trajectory_match
+from ls_evaluators import field_accuracy, escalation_correct, trajectory_match
 from ls_target import run_agent
 
 load_dotenv()
